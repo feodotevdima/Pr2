@@ -1,17 +1,18 @@
-#include <iostream>
-#include <filesystem>
+#include <random>
 #include "Client.cpp"
 #include "Cargo.cpp"
 #include "Admin.cpp"
 #include "Animal.cpp"
+#include <time.h>
 
 using namespace std;
 
 Client client("", "", "", "");
 Cargo cargo("", "", "");
 Admin admin("", "", "");
-
-
+string randomType[] = { "собака", "кошка", "волк", "крыса", "обезьяна", "кабан", "крокодил"};
+string randomName[] = { "Лакки", "Рокки", "Микки", "Юма", "Мира", "Бим", "Вольт" };
+string randomColor[] = { "чёрный", "белый", "серый", "синий", "зелёный", "красный", "розовый" };
 
 int log(string name, string pass)
 {
@@ -120,7 +121,7 @@ void GetAnimals()
 	for (auto c : animals)
 		cout << c.GetId() << endl << c.GetType() << "  " << c.GetName() << endl << c.GetWeight()
 		<< " kg;     " << c.GetHeight() << " cm;     " << c.GetColor() << " цвет" << endl << c.GetCount()
-		<< "шт. осталось на складе" << endl << endl << "=========================================================" << endl << endl << endl;
+		<< "шт. осталось на складе" << endl<< c.GetPrice() << " рублей" << endl << endl << "=========================================================" << endl << endl << endl;
 }
 
 void clientAcc()
@@ -128,11 +129,12 @@ void clientAcc()
 	int i;
 	while (true)
 	{
-		cout << "Клиент" << endl << client.GetName() << endl << endl << "[1] Посмотреть список животных" 
+		cout << endl << "Клиент" << endl << client.GetName() << endl << endl << "[1] Посмотреть список животных"
 			<< endl << "[2] Купить животное" << endl << "[3] Выйти" << endl << endl;
 		cin >> i;
 		if (i == 1)
 		{
+			system("cls");
 			GetAnimals();
 		}
 		else if (i == 2)
@@ -151,6 +153,7 @@ void clientAcc()
 				}
 			}
 			Animal::input(animals);
+			system("cls");
 		}
 		else if (i == 3)
 		{
@@ -165,14 +168,15 @@ void cargoAcc()
 	int i;
 	while (true)
 	{
-		cout << "Кладовщик" << endl << admin.GetName() << endl << endl << "[1] Вывести список животных"
+		cout << endl << "Кладовщик" << endl << cargo.GetName() << endl << endl << "[1] Вывести список животных"
 			<< endl << "[2] Изменить колличество животных" << endl << "[3] Выйти" << endl << endl;
 		cin >> i;
 		if (i == 1)
 		{
+			system("cls");
 			GetAnimals();
 		}
-		else if (i == 2) //todo: change count
+		else if (i == 2) 
 		{
 			int id;
 			int count;
@@ -181,12 +185,16 @@ void cargoAcc()
 			cout << "Введите новое количество" << endl;
 			cin >> count;
 			auto animals = Animal::output();
-			for (auto c : animals)
+			for (auto& c : animals)
 			{
 				if (c.GetId() == id)
+				{
 					c.SetCount(count);
+					break;
+				}
 			}
 			Animal::input(animals);
+			system("cls");
 		}
 		else if (i == 3)
 		{
@@ -201,7 +209,7 @@ void adminAcc()
 	int i;
 	while (true)
 	{
-		cout << "Админ" << endl << admin.GetName() << endl << endl << "[1] Добавить животное" << endl 
+		cout << endl << "Админ" << endl << admin.GetName() << endl << endl << "[1] Добавить животное" << endl
 			<< "[2] Сгенерировать животное" << endl << "[3] Удалить последнее животное" << endl << "[4] Вывести список животных" 
 			<< endl << "[5] Добавить кладовщика" << endl << "[6] Добавить админа" << endl << "[7] Выйти" << endl << endl;
 		cin >> i;
@@ -218,30 +226,38 @@ void adminAcc()
 			newAnimal.SetId(max + 1);
 			animals.push_back(newAnimal);
 			Animal::input(animals);
-
+			system("cls");
 		}
-		else if(i == 2)//todo: random
+		else if(i == 2)
 		{
-			Animal newAnimal;
+			double price = ((double)rand() / RAND_MAX) * 90000 + 1000;
+			double costPrice = price - (((double)rand() / RAND_MAX) * price*0.5 )+ price * 0.45;
+
 			auto animals = Animal::output();
 			int max = 0;
-			for (auto c : animals)
+			for (auto& c : animals)
 			{
 				if (c.GetId() > max)
 					max = c.GetId();
 			}
-			newAnimal.SetId(max + 1);
+
+			Animal newAnimal(max+1, randomType[rand() % (sizeof(randomType) / sizeof(randomType[0]))], randomName[rand() % (sizeof(randomName) / sizeof(randomName[0]))],
+				randomColor[rand() % (sizeof(randomColor) / sizeof(randomColor[0]))], ((double)rand() / RAND_MAX) * 40 + 1, ((double)rand() / RAND_MAX) * 90 + 10,
+				price, costPrice, ((double)rand() / RAND_MAX) * 20, rand() % 50 + 1);
 			animals.push_back(newAnimal);
 			Animal::input(animals);
+			system("cls");
 		}
 		else if (i == 3)
 		{
 			auto animals = Animal::output();
 			animals.pop_back();
+			system("cls");
 
 		}
 		else if (i == 4)
 		{
+			system("cls");
 			GetAnimals();
 		}
 		else if (i == 5)
@@ -258,6 +274,7 @@ void adminAcc()
 				cargos.push_back(newCargo);
 				Cargo::input(cargos);
 			}
+			system("cls");
 		}
 		else if (i == 6)
 		{
@@ -273,6 +290,7 @@ void adminAcc()
 				admins.push_back(newAdmin);
 				Admin::input(admins);
 			}
+			system("cls");
 		}
 		else if (i == 7)
 		{
@@ -285,10 +303,13 @@ void adminAcc()
 
 int main()
 {
+	srand(time(NULL));
+
 	setlocale(LC_ALL, "Russian");
 	while (true)
 	{
 		int status = registrate();
+		system("cls");
 		if (status == 1)
 			clientAcc();
 		if (status == 2)
